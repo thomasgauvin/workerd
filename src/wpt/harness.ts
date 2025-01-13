@@ -36,6 +36,15 @@ type TestRunnerOptions = {
   expectedFailures?: string[];
   verbose?: boolean;
   skippedTests?: string[];
+  skipAllTests?: boolean;
+};
+
+type TestRunnerConfig = {
+  [key: string]: TestRunnerOptions;
+};
+
+type TestCase = {
+  test(): Promise<void>;
 };
 
 type TestRunnerFn = (callback: TestFn | PromiseTestFn, message: string) => void;
@@ -444,12 +453,16 @@ function validate(testFileName: string, options: TestRunnerOptions): void {
   }
 }
 
-export function run(
-  file: string,
-  options: TestRunnerOptions = {}
-): { test(): Promise<void> } {
+export function run(config: TestRunnerConfig, file: string): TestCase {
+  const options = config[file] ?? {};
+
   return {
     async test(): Promise<void> {
+      if (options.skipAllTests) {
+        console.warn(`All tests in ${file} have been skipped.`);
+        return;
+      }
+
       prepare(options);
       await import(file);
       validate(file, options);

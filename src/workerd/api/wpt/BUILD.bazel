@@ -6,6 +6,6 @@ load("//:build/wpt_test.bzl", "wpt_test")
 
 [wpt_test(
     name = file.replace("-test.js", ""),
-    test_js = file,
+    test_config = file,
     wpt_directory = "@wpt//:{}".format(file.replace("-test.js", "")),
 ) for file in glob(["*-test.js"])]
